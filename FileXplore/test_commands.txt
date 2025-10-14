@@ -1,0 +1,21 @@
+create test.txt
+write test.txt "Hello, FileXplore!"
+read test.txt
+append test.txt " This is appended content."
+read test.txt
+mkdir documents
+cd documents
+pwd
+create readme.md
+write readme.md "# Project Documentation"
+read readme.md
+ls
+cd ..
+tree
+df
+delete documents/readme.md
+rmdir documents
+ls
+delete test.txt
+ls
+exit

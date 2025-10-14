@@ -1,0 +1,205 @@
+# FileXplore Demo Commands
+# Copy and paste these commands into FileXplore to test all features
+# Lines starting with # are comments and will be ignored
+
+# ============================================================================
+# FileXplore Virtual File System Simulator - Demo Commands
+# ============================================================================
+
+# Display help to see all available commands
+help
+
+# Show current directory (should be root "/")
+pwd
+
+# Show initial disk usage statistics
+df
+
+# ============================================================================
+# Directory Operations Demo
+# ============================================================================
+
+# Create some directories
+mkdir /home
+mkdir /home/user
+mkdir /home/user/documents
+mkdir /home/user/pictures
+mkdir /var
+mkdir /var/log
+mkdir /tmp
+
+# List root directory
+ls /
+
+# List home directory
+ls /home
+
+# Display directory tree from root
+tree /
+
+# Change to user directory
+cd /home/user
+
+# Show current directory (should be /home/user)
+pwd
+
+# List current directory contents
+ls
+
+# Create relative directory
+mkdir projects
+mkdir projects/cpp
+mkdir projects/python
+
+# List current directory again
+ls
+
+# ============================================================================
+# File Operations Demo
+# ============================================================================
+
+# Create some files
+create /home/user/documents/readme.txt
+create /home/user/documents/notes.md
+create /home/user/pictures/photo1.jpg
+create /home/user/projects/cpp/main.cpp
+
+# Write content to files
+write /home/user/documents/readme.txt "Welcome to FileXplore Virtual File System!"
+write /home/user/documents/notes.md "# My Notes\n\nThis is a markdown file with some notes."
+write /home/user/projects/cpp/main.cpp "#include <iostream>\n\nint main() {\n    std::cout << \"Hello, FileXplore!\" << std::endl;\n    return 0;\n}"
+
+# Read file contents
+read /home/user/documents/readme.txt
+read /home/user/documents/notes.md
+read /home/user/projects/cpp/main.cpp
+
+# Append content to a file
+append /home/user/documents/readme.txt "\n\nThis line was appended to the file."
+
+# Read the file again to see the appended content
+read /home/user/documents/readme.txt
+
+# ============================================================================
+# Navigation and Listing Demo
+# ============================================================================
+
+# Navigate to different directories
+cd /home/user/documents
+pwd
+ls
+
+cd ../projects/cpp
+pwd
+ls
+
+# Go back to root
+cd /
+pwd
+
+# Display complete directory tree
+tree /
+
+# ============================================================================
+# System Information Demo
+# ============================================================================
+
+# Show updated disk usage statistics
+df
+
+# Show command history
+history
+
+# ============================================================================
+# Relative Path Demo
+# ============================================================================
+
+# Change to user directory
+cd /home/user
+
+# Create files using relative paths
+create ./profile.txt
+create documents/config.ini
+create projects/readme.md
+
+# Write to files using relative paths
+write ./profile.txt "User Profile Information"
+write documents/config.ini "[settings]\ntheme=dark\nlanguage=en"
+write projects/readme.md "# My Projects\n\nThis directory contains all my coding projects."
+
+# Read files using relative paths
+read ./profile.txt
+read documents/config.ini
+read projects/readme.md
+
+# List current directory
+ls
+
+# ============================================================================
+# Parent Directory Navigation Demo
+# ============================================================================
+
+# Navigate using parent directory references
+cd projects
+pwd
+cd ../documents
+pwd
+cd ../../..
+pwd
+
+# ============================================================================
+# Error Handling Demo
+# ============================================================================
+
+# Try to create a file that already exists
+create /home/user/documents/readme.txt
+
+# Try to read a non-existent file
+read /home/user/nonexistent.txt
+
+# Try to delete a non-existent file
+delete /home/user/nonexistent.txt
+
+# Try to remove a non-empty directory
+rmdir /home/user
+
+# Try to change to a non-existent directory
+cd /nonexistent
+
+# ============================================================================
+# Cleanup Demo
+# ============================================================================
+
+# Delete some files
+delete /home/user/profile.txt
+delete /home/user/documents/config.ini
+
+# Remove empty directories (must be empty first)
+cd /home/user/projects
+delete cpp/main.cpp
+delete readme.md
+cd ..
+rmdir projects/cpp
+rmdir projects
+
+# Show final directory structure
+tree /
+
+# Show final disk usage
+df
+
+# Show command history
+history
+
+# ============================================================================
+# End of Demo
+# ============================================================================
+
+# Clear screen
+clear
+
+# Display help one more time
+help
+
+# Exit FileXplore (uncomment the line below to exit)
+# exit
