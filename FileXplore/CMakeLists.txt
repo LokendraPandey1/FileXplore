@@ -127,18 +127,11 @@ set_target_properties(FileXplore-GUI PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
-# Link filesystem library if needed (for older compilers)
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.0")
-    target_link_libraries(FileXplore stdc++fs)
-endif()
-
-# Set output directory
-set_target_properties(FileXplore PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
-
 # Installation
 install(TARGETS FileXplore
+    RUNTIME DESTINATION bin
+)
+install(TARGETS FileXplore-GUI
     RUNTIME DESTINATION bin
 )
 
