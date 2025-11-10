@@ -3,8 +3,10 @@
 #include "include/SystemInfo.h"
 #include "include/PersistenceManager.h"
 #include "include/HistoryManager.h"
+#include "include/WebServer.h"
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
