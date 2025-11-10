@@ -67,44 +67,36 @@ int WebServer::getPort() const {
 void WebServer::setupRoutes() {
     // API Routes
     CROW_ROUTE(*app_, "/api/command").methods("POST"_method)([this](const crow::request& req) {
-        handleCommand();
-        return crow::response(200);
+        return handleCommand(req);
     });
 
     CROW_ROUTE(*app_, "/api/filesystem").methods("GET"_method)([this](const crow::request& req) {
-        handleFileSystem();
-        return crow::response(200);
+        return handleFileSystem(req);
     });
 
     CROW_ROUTE(*app_, "/api/file/<string>").methods("GET"_method)([this](const crow::request& req, const std::string& path) {
-        handleFileContent(path);
-        return crow::response(200);
+        return handleFileContent(req, path);
     });
 
     CROW_ROUTE(*app_, "/api/file/<string>").methods("POST"_method)([this](const crow::request& req, const std::string& path) {
-        handleFileUpload(path);
-        return crow::response(200);
+        return handleFileUpload(req, path);
     });
 
     CROW_ROUTE(*app_, "/api/history").methods("GET"_method)([this](const crow::request& req) {
-        handleHistory();
-        return crow::response(200);
+        return handleHistory(req);
     });
 
     CROW_ROUTE(*app_, "/api/system").methods("GET"_method)([this](const crow::request& req) {
-        handleSystemInfo();
-        return crow::response(200);
+        return handleSystemInfo(req);
     });
 
     // Static file serving
-    CROW_ROUTE(*app_, "/<string>").methods("GET"_method)([this](const crow::request& req, const std::string& filename) {
-        handleStaticFiles();
-        return crow::response(200);
+    CROW_ROUTE(*app_, "/").methods("GET"_method)([this](const crow::request& req) {
+        return handleStaticFile("index.html");
     });
 
-    CROW_ROUTE(*app_, "/").methods("GET"_method)([this](const crow::request& req) {
-        handleStaticFiles();
-        return crow::response(200);
+    CROW_ROUTE(*app_, "/<string>").methods("GET"_method)([this](const crow::request& req, const std::string& filename) {
+        return handleStaticFile(filename);
     });
 }
 
