@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FileXplore - Virtual File System Simulator GUI">
+    <title>FileXplore - Virtual File System Simulator</title>
+
+    <!-- CSS Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📁</text></svg>">
+</head>
+<body>
+    <!-- Application Header -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="app-title">
+                <h1>FileXplore</h1>
+                <span class="version">v1.0</span>
+            </div>
+
+            <div class="header-controls">
+                <div class="breadcrumb" id="breadcrumb">
+                    <span class="breadcrumb-item">/</span>
+                </div>
+
+                <div class="view-controls">
+                    <button class="view-btn active" data-view="list" title="List View">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
+                        </svg>
+                    </button>
+                    <button class="view-btn" data-view="grid" title="Grid View">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
+                        </svg>
+                    </button>
+                    <button class="view-btn" data-view="tree" title="Tree View">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 11h18v2H3v-2zm0-4h18v2H3V7zm0 8h18v2H3v-2z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="theme-toggle">
+                    <button class="theme-btn" id="theme-toggle" title="Toggle Theme">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Application Container -->
+    <main class="app-main">
+        <div class="app-layout">
+            <!-- Sidebar - Navigation Panel -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Quick Actions</h2>
+                </div>
+
+                <div class="quick-actions">
+                    <button class="action-btn" id="create-file-btn" title="Create New File">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                            <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+                        </svg>
+                        <span>New File</span>
+                    </button>
+
+                    <button class="action-btn" id="create-folder-btn" title="Create New Folder">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/>
+                            <path d="M12 11v6M9 14h6"/>
+                        </svg>
+                        <span>New Folder</span>
+                    </button>
+
+                    <button class="action-btn" id="upload-btn" title="Upload Files">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                        </svg>
+                        <span>Upload</span>
+                    </button>
+                </div>
+
+                <div class="sidebar-header">
+                    <h2>System Info</h2>
+                </div>
+
+                <div class="system-info" id="system-info">
+                    <div class="info-item">
+                        <span class="info-label">Disk Usage:</span>
+                        <span class="info-value" id="disk-usage">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Files:</span>
+                        <span class="info-value" id="file-count">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Folders:</span>
+                        <span class="info-value" id="folder-count">Loading...</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <button class="toolbar-btn" id="refresh-btn" title="Refresh">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15"/>
+                            </svg>
+                            Refresh
+                        </button>
+
+                        <div class="search-container">
+                            <input type="text" class="search-input" id="search-input" placeholder="Search files...">
+                            <button class="search-btn" id="search-btn" title="Search">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="toolbar-right">
+                        <div class="sort-controls">
+                            <select class="sort-select" id="sort-select">
+                                <option value="name">Name</option>
+                                <option value="size">Size</option>
+                                <option value="modified">Modified</option>
+                                <option value="type">Type</option>
+                            </select>
+                            <button class="sort-btn" id="sort-order-btn" title="Toggle Sort Order">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M3 7h14m-7-7l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Explorer -->
+                <div class="file-explorer" id="file-explorer">
+                    <div class="loading-indicator" id="loading">
+                        <div class="spinner"></div>
+                        <p>Loading files...</p>
+                    </div>
+
+                    <div class="file-list" id="file-list" style="display: none;">
+                        <!-- File items will be dynamically added here -->
+                    </div>
+
+                    <div class="empty-state" id="empty-state" style="display: none;">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor" opacity="0.3">
+                            <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/>
+                        </svg>
+                        <h3>Folder is empty</h3>
+                        <p>This folder contains no files or subfolders.</p>
+                    </div>
+                </div>
+
+                <!-- Command Interface -->
+                <div class="command-interface">
+                    <div class="command-header">
+                        <h3>Command Interface</h3>
+                        <button class="toggle-btn" id="toggle-command" title="Toggle Command Interface">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="command-content" id="command-content">
+                        <div class="command-history" id="command-history">
+                            <!-- Command history will appear here -->
+                        </div>
+
+                        <div class="command-input-container">
+                            <span class="command-prompt" id="command-prompt">$</span>
+                            <input type="text" class="command-input" id="command-input"
+                                   placeholder="Enter command (or type 'help' for available commands)..."
+                                   autocomplete="off">
+                            <button class="command-send-btn" id="command-send-btn" title="Send Command">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Status Bar -->
+    <footer class="status-bar">
+        <div class="status-left">
+            <span id="status-text">Ready</span>
+        </div>
+        <div class="status-right">
+            <span id="selected-count">0 items selected</span>
+        </div>
+    </footer>
+
+    <!-- Context Menu (hidden by default) -->
+    <div class="context-menu" id="context-menu" style="display: none;">
+        <div class="context-menu-item" data-action="open">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+            Open
+        </div>
+        <div class="context-menu-item" data-action="rename">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Rename
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="copy">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </svg>
+            Copy
+        </div>
+        <div class="context-menu-item" data-action="cut">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 2.5l6 6m0 0l-6 6m6-6H3m18 13v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2"/>
+            </svg>
+            Cut
+        </div>
+        <div class="context-menu-item" data-action="paste">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </svg>
+            Paste
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="delete">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Delete
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="properties">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+            </svg>
+            Properties
+        </div>
+    </div>
+
+    <!-- File Preview Modal -->
+    <div class="modal" id="file-preview-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="preview-title">File Preview</h3>
+                <button class="modal-close" id="preview-close" title="Close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="file-preview-content" id="file-preview-content">
+                    <!-- File content will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Toast Container -->
+    <div class="toast-container" id="toast-container">
+        <!-- Toast messages will appear here -->
+    </div>
+
+    <!-- JavaScript Application -->
+    <script src="app.js"></script>
+</body>
+</html>
