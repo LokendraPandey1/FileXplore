@@ -56,70 +56,116 @@ void displayPrompt() {
 }
 
 int main(int argc, char* argv[]) {
-    // Default VFS root directory
-    string vfs_root = "./filexplore_root";
-    
-    // Allow custom VFS root from command line
-    if (argc > 1) {
-        vfs_root = argv[1];
+    // Check for help argument
+    for (int i = 1; i < argc; ++i) {
+        string arg(argv[i]);
+        transform(arg.begin(), arg.end(), arg.begin(), ::tolower);
+        if (arg == "--help" || arg == "-h") {
+            showUsage();
+            return 0;
+        }
     }
-    
+
+    // Determine if GUI mode
+    bool gui_mode = isGUIMode(argc, argv);
+
+    // Parse VFS root directory (skip GUI flag)
+    string vfs_root = "./filexplore_root";
+    for (int i = 1; i < argc; ++i) {
+        string arg(argv[i]);
+        transform(arg.begin(), arg.end(), arg.begin(), ::tolower);
+        if (arg != "--gui" && arg != "-g") {
+            vfs_root = argv[i];
+            break;
+        }
+    }
+
     // Initialize the virtual file system
     if (!PathUtils::initializeVFSRoot(vfs_root)) {
         cerr << "Error: Failed to initialize VFS root directory: " << vfs_root << endl;
         cerr << "Please check permissions and try again." << endl;
         return 1;
     }
-    
+
     // Initialize persistence system
     if (PersistenceManager::initialize(vfs_root)) {
-        cout << "Persistence system initialized." << endl;
-        
-        // Load previous state if available
-        if (PathUtils::loadVFSState()) {
-            cout << "Previous VFS state restored." << endl;
+        if (!gui_mode) {
+            cout << "Persistence system initialized." << endl;
+
+            // Load previous state if available
+            if (PathUtils::loadVFSState()) {
+                cout << "Previous VFS state restored." << endl;
+            }
+
+            if (HistoryManager::loadHistory()) {
+                cout << "Command history restored." << endl;
+            }
         }
-        
-        if (HistoryManager::loadHistory()) {
-            cout << "Command history restored." << endl;
-        }
-    } else {
+    } else if (!gui_mode) {
         cout << "Warning: Persistence system not available. Session data will not be saved." << endl;
     }
-    
+
     // Initialize command parser
     CommandParser::initialize();
-    
-    // Display welcome message
+
+    // GUI Mode
+    if (gui_mode) {
+        displayGUIWelcome();
+        cout << "Starting web server..." << endl;
+        cout << "VFS Root: " << PathUtils::getVFSRoot() << endl;
+        cout << "Current Directory: " << PathUtils::getCurrentVirtualPath() << endl;
+        cout << string(70, '-') << endl;
+
+        // Create and start web server
+        WebServer server(8080);
+
+        if (!server.start()) {
+            cerr << "Error: Failed to start web server" << endl;
+            return 1;
+        }
+
+        cout << "Web server started successfully!" << endl;
+        cout << "Access FileXplore GUI at: http://localhost:8080" << endl;
+        cout << "Press Ctrl+C to stop the server..." << endl;
+
+        // Keep server running
+        while (server.isRunning()) {
+            this_thread::sleep_for(chrono::milliseconds(100));
+        }
+
+        return 0;
+    }
+
+    // CLI Mode (original functionality)
     displayWelcome();
-    
+
     // Show initial system information
     cout << "VFS Root: " << PathUtils::getVFSRoot() << endl;
     cout << "Current Directory: " << PathUtils::getCurrentVirtualPath() << endl;
     cout << string(70, '-') << endl;
-    
+
     // Main CLI loop
     string input;
     bool running = true;
-    
+
     while (running) {
         displayPrompt();
-        
+
         // Get user input
         if (!getline(cin, input)) {
             // Handle EOF (Ctrl+D on Unix, Ctrl+Z on Windows)
             cout << endl << "Goodbye! Exiting FileXplore..." << endl;
             break;
         }
-        
+
         // Skip empty input
         if (input.empty()) {
             continue;
         }
-        
+
         // Execute command
         CommandParser::CommandResult result = CommandParser::executeCommand(input);
-        
+
         // Handle command result
         if (!result.success) {
             cerr << "Error: " << result.message << endl;
@@ -130,25 +176,25 @@ int main(int argc, char* argv[]) {
                 cout << result.message << endl;
             }
         }
-        
+
         // Add a blank line for better readability (except for certain commands)
         if (running && input != "clear" && input != "help" && input != "history" && input != "df") {
             cout << endl;
         }
     }
-    
+
     // Save state before exiting
     if (PersistenceManager::isPersistenceAvailable()) {
         cout << "Saving session data..." << endl;
-        
+
         if (PathUtils::saveVFSState()) {
             cout << "VFS state saved." << endl;
         }
-        
+
         if (HistoryManager::saveHistory()) {
             cout << "Command history saved." << endl;
         }
     }
-    
+
     return 0;
 }
