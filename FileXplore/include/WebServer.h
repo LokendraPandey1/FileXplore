@@ -84,15 +84,15 @@ private:
     void setupRoutes();
 
     // API endpoint handlers
-    void handleCommand();
-    void handleFileSystem();
-    void handleFileContent(const std::string& path);
-    void handleFileUpload(const std::string& path);
-    void handleHistory();
-    void handleSystemInfo();
+    crow::response handleCommand(const crow::request& req);
+    crow::response handleFileSystem(const crow::request& req);
+    crow::response handleFileContent(const crow::request& req, const std::string& path);
+    crow::response handleFileUpload(const crow::request& req, const std::string& path);
+    crow::response handleHistory(const crow::request& req);
+    crow::response handleSystemInfo(const crow::request& req);
 
     // Static file serving
-    void handleStaticFiles();
+    crow::response handleStaticFile(const std::string& filename);
 
     // Utility methods
     std::string generateJSON(const FileSystemData& data);
