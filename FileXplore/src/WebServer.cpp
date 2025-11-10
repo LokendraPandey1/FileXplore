@@ -100,7 +100,7 @@ void WebServer::setupRoutes() {
     });
 }
 
-void WebServer::handleCommand() {
+crow::response WebServer::handleCommand(const crow::request& req) {
     try {
         // Parse JSON request
         json request_data = json::parse(req.body);
@@ -132,7 +132,7 @@ void WebServer::handleCommand() {
     }
 }
 
-void WebServer::handleFileSystem() {
+crow::response WebServer::handleFileSystem(const crow::request& req) {
     try {
         std::string path = req.url_params.get("path") ? req.url_params.get("path") : ".";
         FileSystemData fs_data = getFileSystemData(path);
@@ -158,7 +158,7 @@ void WebServer::handleFileSystem() {
     }
 }
 
-void WebServer::handleFileContent(const std::string& path) {
+crow::response WebServer::handleFileContent(const crow::request& req, const std::string& path) {
     try {
         std::string content = FileManager::readFile(path);
 
@@ -189,7 +189,7 @@ void WebServer::handleFileContent(const std::string& path) {
     }
 }
 
-void WebServer::handleFileUpload(const std::string& path) {
+crow::response WebServer::handleFileUpload(const crow::request& req, const std::string& path) {
     try {
         std::string content = req.body;
         std::string result = FileManager::writeFile(path, content);
@@ -225,7 +225,7 @@ void WebServer::handleFileUpload(const std::string& path) {
     }
 }
 
-void WebServer::handleHistory() {
+crow::response WebServer::handleHistory(const crow::request& req) {
     try {
         std::vector<std::string> history = HistoryManager::getHistory();
 
@@ -250,11 +250,11 @@ void WebServer::handleHistory() {
     }
 }
 
-void WebServer::handleSystemInfo() {
+crow::response WebServer::handleSystemInfo(const crow::request& req) {
     try {
         // Get disk usage information
         std::string vfs_root = PathUtils::getVFSRoot();
-        space_info space = fs::space(vfs_root);
+        fs::space_info space = fs::space(vfs_root);
 
         // Get file count
         size_t file_count = 0;
@@ -300,9 +300,9 @@ void WebServer::handleSystemInfo() {
     }
 }
 
-void WebServer::handleStaticFiles() {
+crow::response WebServer::handleStaticFile(const std::string& filename) {
     try {
-        std::string requested_path = req.url_params.get("path") ? req.url_params.get("path") : "index.html";
+        std::string requested_path = filename;
         std::string full_path = "web/" + requested_path;
 
         // Security check - prevent directory traversal
