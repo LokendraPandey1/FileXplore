@@ -141,10 +141,17 @@ message(STATUS "Version: ${PROJECT_VERSION}")
 message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 
-# Custom target for running the application
+# Custom targets for running the applications
 add_custom_target(run
     COMMAND FileXplore
     DEPENDS FileXplore
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-    COMMENT "Running FileXplore..."
+    COMMENT "Running FileXplore CLI..."
+)
+
+add_custom_target(run-gui
+    COMMAND FileXplore-GUI --gui
+    DEPENDS FileXplore-GUI
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    COMMENT "Running FileXplore GUI..."
 )
