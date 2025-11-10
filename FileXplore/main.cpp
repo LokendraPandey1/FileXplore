@@ -19,6 +19,37 @@ void displayWelcome() {
     cout << string(70, '-') << endl;
 }
 
+void displayGUIWelcome() {
+    cout << string(70, '=') << endl;
+    cout << "FileXplore GUI Mode - Virtual File System Simulator" << endl;
+    cout << "Version 1.0 - C++17 Implementation" << endl;
+    cout << string(70, '=') << endl;
+}
+
+bool isGUIMode(int argc, char* argv[]) {
+    for (int i = 1; i < argc; ++i) {
+        std::string arg(argv[i]);
+        std::transform(arg.begin(), arg.end(), arg.begin(), ::tolower);
+        if (arg == "--gui" || arg == "-g") {
+            return true;
+        }
+    }
+    return false;
+}
+
+void showUsage() {
+    cout << "Usage: FileXplore [options] [vfs_root_directory]" << endl;
+    cout << "Options:" << endl;
+    cout << "  --gui, -g        Start in GUI mode (web interface)" << endl;
+    cout << "  --help, -h       Show this help message" << endl;
+    cout << endl;
+    cout << "Examples:" << endl;
+    cout << "  FileXplore                    # Start CLI mode with default VFS root" << endl;
+    cout << "  FileXplore /tmp/myfs          # Start CLI mode with custom VFS root" << endl;
+    cout << "  FileXplore --gui              # Start GUI mode with default VFS root" << endl;
+    cout << "  FileXplore --gui /tmp/myfs    # Start GUI mode with custom VFS root" << endl;
+}
+
 void displayPrompt() {
     string current_dir = PathUtils::getCurrentVirtualPath();
     cout << "FileXplore:" << current_dir << "$ ";
