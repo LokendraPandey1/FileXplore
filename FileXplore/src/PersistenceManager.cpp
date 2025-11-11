@@ -1,13 +1,21 @@
-using namespace std;
-#include "../include/PersistenceManager.h"
+#include <string>
+#include <vector>
+#include <map>
+#include <sstream>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <ctime>
+using std::string;
+using std::vector;
+using std::map;
+using std::stringstream;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::exception;
+#include "../include/PersistenceManager.h"
 
 #ifdef _WIN32
-    #include <windows.h>
-    #include <shlobj.h>
     #include <direct.h>
     #include <sys/stat.h>
     #define mkdir(path, mode) _mkdir(path)
@@ -90,7 +98,7 @@ bool PersistenceManager::createPersistenceDirectory() {
 
 bool PersistenceManager::writeToFile(const string& filename, const string& content) {
     try {
-        ofstream file(filename);
+        std::ofstream file(filename);
         if (!file.is_open()) {
             return false;
         }
@@ -106,7 +114,7 @@ bool PersistenceManager::writeToFile(const string& filename, const string& conte
 
 string PersistenceManager::readFromFile(const string& filename) {
     try {
-        ifstream file(filename);
+        std::ifstream file(filename);
         if (!file.is_open()) {
             return "";
         }
@@ -132,7 +140,7 @@ bool PersistenceManager::saveHistory(const vector<string>& history) {
         json << "{\n";
         json << "  \"history\": [\n";
         
-        for (size_t i = 0; i < history.size(); ++i) {
+        for (std::size_t i = 0; i < history.size(); ++i) {
             json << "    \"" << history[i] << "\"";
             if (i < history.size() - 1) {
                 json << ",";
@@ -165,13 +173,13 @@ vector<string> PersistenceManager::loadHistory() {
         }
         
         // Simple JSON parsing for history array
-        size_t start = content.find("\"history\": [");
+        std::size_t start = content.find("\"history\": [");
         if (start == string::npos) {
             return history;
         }
         
         start = content.find('[', start);
-        size_t end = content.find(']', start);
+        std::size_t end = content.find(']', start);
         if (start == string::npos || end == string::npos) {
             return history;
         }
@@ -236,12 +244,12 @@ map<string, string> PersistenceManager::loadVFSState() {
         // Simple JSON parsing for key-value pairs
         auto extractValue = [&content](const string& key) -> string {
             string search = "\"" + key + "\": \"";
-            size_t start = content.find(search);
+            std::size_t start = content.find(search);
             if (start == string::npos) {
                 return "";
             }
             start += search.length();
-            size_t end = content.find('\"', start);
+            std::size_t end = content.find('\"', start);
             if (end == string::npos) {
                 return "";
             }
@@ -267,7 +275,7 @@ bool PersistenceManager::saveSettings(const map<string, string>& settings) {
         stringstream json;
         json << "{\n";
         
-        size_t count = 0;
+        std::size_t count = 0;
         for (const auto& pair : settings) {
             json << "  \"" << pair.first << "\": \"" << pair.second << "\"";
             if (count < settings.size() - 1) {
@@ -304,7 +312,7 @@ map<string, string> PersistenceManager::loadSettings() {
         string line;
         
         while (getline(ss, line)) {
-            size_t colon = line.find(':');
+            std::size_t colon = line.find(':');
             if (colon == string::npos) {
                 continue;
             }

@@ -5,7 +5,6 @@
 #include "../include/DirManager.h"
 #include "../include/HistoryManager.h"
 #include "../include/SystemInfo.h"
-#include <crow.h>
 #include <sstream>
 #include <fstream>
 #include <filesystem>
@@ -66,36 +65,36 @@ int WebServer::getPort() const {
 
 void WebServer::setupRoutes() {
     // API Routes
-    CROW_ROUTE(*app_, "/api/command").methods("POST"_method)([this](const crow::request& req) {
+    CROW_ROUTE((*app_), "/api/command").methods("POST"_method)([this](const crow::request& req) {
         return handleCommand(req);
     });
 
-    CROW_ROUTE(*app_, "/api/filesystem").methods("GET"_method)([this](const crow::request& req) {
+    CROW_ROUTE((*app_), "/api/filesystem").methods("GET"_method)([this](const crow::request& req) {
         return handleFileSystem(req);
     });
 
-    CROW_ROUTE(*app_, "/api/file/<string>").methods("GET"_method)([this](const crow::request& req, const std::string& path) {
+    CROW_ROUTE((*app_), "/api/file/<string>").methods("GET"_method)([this](const crow::request& req, const std::string& path) {
         return handleFileContent(req, path);
     });
 
-    CROW_ROUTE(*app_, "/api/file/<string>").methods("POST"_method)([this](const crow::request& req, const std::string& path) {
+    CROW_ROUTE((*app_), "/api/file/<string>").methods("POST"_method)([this](const crow::request& req, const std::string& path) {
         return handleFileUpload(req, path);
     });
 
-    CROW_ROUTE(*app_, "/api/history").methods("GET"_method)([this](const crow::request& req) {
+    CROW_ROUTE((*app_), "/api/history").methods("GET"_method)([this](const crow::request& req) {
         return handleHistory(req);
     });
 
-    CROW_ROUTE(*app_, "/api/system").methods("GET"_method)([this](const crow::request& req) {
+    CROW_ROUTE((*app_), "/api/system").methods("GET"_method)([this](const crow::request& req) {
         return handleSystemInfo(req);
     });
 
     // Static file serving
-    CROW_ROUTE(*app_, "/").methods("GET"_method)([this](const crow::request& req) {
+    CROW_ROUTE((*app_), "/").methods("GET"_method)([this](const crow::request& req) {
         return handleStaticFile("index.html");
     });
 
-    CROW_ROUTE(*app_, "/<string>").methods("GET"_method)([this](const crow::request& req, const std::string& filename) {
+    CROW_ROUTE((*app_), "/<string>").methods("GET"_method)([this](const crow::request& req, const std::string& filename) {
         return handleStaticFile(filename);
     });
 }

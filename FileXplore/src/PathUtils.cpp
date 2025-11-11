@@ -1,10 +1,21 @@
-using namespace std;
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <sstream>
+#include <iostream>
+using std::string;
+using std::vector;
+using std::map;
+using std::replace;
+using std::stringstream;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::exception;
 #include "../include/PathUtils.h"
 #include "../include/PersistenceManager.h"
-#include <iostream>
 #include <fstream>
-#include <sstream>
-#include <algorithm>
 #include <sys/stat.h>
 
 #ifdef _WIN32
@@ -342,4 +353,80 @@ bool PathUtils::loadVFSState() {
     }
     
     return !state.empty();
+}
+
+string PathUtils::resolveVirtualPath(const string& path) {
+    // Resolve to a normalized virtual path first, then map to real
+    string resolved_virtual = resolvePath(path);
+    return virtualToRealPath(resolved_virtual);
+}
+
+string PathUtils::getVirtualPath(const string& real_path) {
+    if (vfs_root.empty()) {
+        return "/";
+    }
+
+    // Build platform-specific root for comparison
+    string normalized_root = vfs_root;
+    replace(normalized_root.begin(), normalized_root.end(), '/', PATH_SEPARATOR);
+
+    string normalized_real = real_path;
+    replace(normalized_real.begin(), normalized_real.end(), '/', PATH_SEPARATOR);
+
+#ifdef _WIN32
+    // Canonicalize both paths
+    char resolved_real_buf[MAX_PATH];
+    char resolved_root_buf[MAX_PATH];
+    if (GetFullPathNameA(normalized_real.c_str(), MAX_PATH, resolved_real_buf, nullptr) == 0) {
+        return "/";
+    }
+    if (GetFullPathNameA(normalized_root.c_str(), MAX_PATH, resolved_root_buf, nullptr) == 0) {
+        return "/";
+    }
+    string canonical_real(resolved_real_buf);
+    string canonical_root(resolved_root_buf);
+#else
+    char* resolved_real_ptr = realpath(normalized_real.c_str(), nullptr);
+    char* resolved_root_ptr = realpath(normalized_root.c_str(), nullptr);
+    if (!resolved_real_ptr || !resolved_root_ptr) {
+        if (resolved_real_ptr) free(resolved_real_ptr);
+        if (resolved_root_ptr) free(resolved_root_ptr);
+        return "/";
+    }
+    string canonical_real(resolved_real_ptr);
+    string canonical_root(resolved_root_ptr);
+    free(resolved_real_ptr);
+    free(resolved_root_ptr);
+#endif
+
+    // Ensure real path is under root
+    if (canonical_real.size() < canonical_root.size()) {
+        return "/";
+    }
+    if (canonical_real.substr(0, canonical_root.size()) != canonical_root) {
+        return "/";
+    }
+
+    // Compute the relative part and convert to Unix-style separators for virtual path
+    string relative_part;
+    if (canonical_real.size() == canonical_root.size()) {
+        relative_part = "";
+    } else {
+        // Skip the separator if present
+        size_t offset = canonical_root.size();
+        if (canonical_real[offset] == PATH_SEPARATOR) {
+            offset += 1;
+        }
+        relative_part = canonical_real.substr(offset);
+    }
+
+    // Convert back to forward slashes
+    replace(relative_part.begin(), relative_part.end(), PATH_SEPARATOR, '/');
+
+    string virtual_path = "/";
+    if (!relative_part.empty()) {
+        virtual_path += relative_part;
+    }
+    // Normalize to be safe
+    return normalizePath(virtual_path);
 }

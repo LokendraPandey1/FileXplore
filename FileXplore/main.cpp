@@ -1,14 +1,23 @@
 #include "include/PathUtils.h"
 #include "include/CommandParser.h"
 #include "include/SystemInfo.h"
+#if ENABLE_GUI
+#include "include/WebServer.h"
+#endif
 #include "include/PersistenceManager.h"
 #include "include/HistoryManager.h"
-#include "include/WebServer.h"
 #include <iostream>
 #include <string>
 #include <algorithm>
 #include <thread>
 #include <chrono>
+
+#ifdef _WIN32
+    #ifndef NOMINMAX
+    #define NOMINMAX
+    #endif
+    #include <windows.h>
+#endif
 
 using namespace std;
 
@@ -113,29 +122,29 @@ int main(int argc, char* argv[]) {
     // GUI Mode
     if (gui_mode) {
         displayGUIWelcome();
-        cout << "Starting web server..." << endl;
-        cout << "VFS Root: " << PathUtils::getVFSRoot() << endl;
-        cout << "Current Directory: " << PathUtils::getCurrentVirtualPath() << endl;
-        cout << string(70, '-') << endl;
-
-        // Create and start web server
-        WebServer server(8080);
-
+#if ENABLE_GUI
+        // Start embedded web server
+        int port = 8080;
+        WebServer server(port);
         if (!server.start()) {
-            cerr << "Error: Failed to start web server" << endl;
+            cerr << "Error: Failed to start web server on port " << port << endl;
             return 1;
         }
 
-        cout << "Web server started successfully!" << endl;
-        cout << "Access FileXplore GUI at: http://localhost:8080" << endl;
-        cout << "Press Ctrl+C to stop the server..." << endl;
+        cout << "Web server started on http://localhost:" << port << "/" << endl;
+        cout << "Serving static files from ./web. Press Ctrl+C to stop." << endl;
 
-        // Keep server running
+        // Keep process alive while server runs
         while (server.isRunning()) {
-            this_thread::sleep_for(chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
 
+        server.stop();
         return 0;
+#else
+        cerr << "GUI is disabled in this build. Rebuild with a newer compiler (e.g., MSYS2 MinGW-w64 GCC >= 9) or MSVC to enable GUI." << endl;
+        return 1;
+#endif
     }
 
     // CLI Mode (original functionality)

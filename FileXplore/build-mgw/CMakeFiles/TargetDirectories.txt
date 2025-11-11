@@ -1,0 +1,8 @@
+C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-mgw/CMakeFiles/FileXplore.dir
+C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-mgw/CMakeFiles/run.dir
+C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-mgw/CMakeFiles/edit_cache.dir
+C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-mgw/CMakeFiles/rebuild_cache.dir
+C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-mgw/CMakeFiles/list_install_components.dir
+C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-mgw/CMakeFiles/install.dir
+C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-mgw/CMakeFiles/install/local.dir
+C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-mgw/CMakeFiles/install/strip.dir

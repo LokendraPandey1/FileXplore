@@ -1,10 +1,21 @@
-using namespace std;
-#include "../include/SystemInfo.h"
-#include "../include/PathUtils.h"
-#include <iostream>
+#include <string>
 #include <sstream>
 #include <iomanip>
 #include <fstream>
+#include <iostream>
+using std::string;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::left;
+using std::setw;
+using std::ostringstream;
+using std::ifstream;
+using std::fixed;
+using std::setprecision;
+using std::ios;
+#include "../include/SystemInfo.h"
+#include "../include/PathUtils.h"
 
 #ifdef _WIN32
     #include <windows.h>

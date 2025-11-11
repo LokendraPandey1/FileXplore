@@ -1,9 +1,11 @@
-using namespace std;
 #ifndef PATHUTILS_H
 #define PATHUTILS_H
 
 #include <string>
 #include <vector>
+
+using std::string;
+using std::vector;
 
 /**
  * PathUtils class for safe path resolution and sandbox security
@@ -64,6 +66,12 @@ public:
     // Persistence methods
     static bool saveVFSState();
     static bool loadVFSState();
+
+    // Resolve a virtual path to a real filesystem path (wrapper convenience)
+    static string resolveVirtualPath(const string& path);
+
+    // Convert a real filesystem path under VFS root back to virtual path
+    static string getVirtualPath(const string& real_path);
 };
 
 #endif // PATHUTILS_H

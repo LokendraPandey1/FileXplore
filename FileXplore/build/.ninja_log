@@ -1,0 +1,10 @@
+# ninja log v7
+8	597	7844775375299023	CMakeFiles/FileXplore.dir/src/FileManager.cpp.obj	49e5543359f5cf5d
+62	791	7844775375819084	CMakeFiles/FileXplore.dir/src/HistoryManager.cpp.obj	5b794d412b87ea0b
+52	945	7844775375729048	CMakeFiles/FileXplore.dir/src/PersistenceManager.cpp.obj	f1d6ee60fbdc8c21
+38	1046	7844775375619144	CMakeFiles/FileXplore.dir/src/CommandParser.cpp.obj	25d003cc184775f3
+23	1621	7844775375439075	CMakeFiles/FileXplore.dir/src/DirManager.cpp.obj	db289398ef713249
+68	1646	7844775375889098	CMakeFiles/FileXplore.dir/src/SystemInfo.cpp.obj	892924f3fa70fbac
+2	1679	7844775375223547	CMakeFiles/FileXplore.dir/src/PathUtils.cpp.obj	18fa0a1a92da672b
+76	1705	7844775375969079	CMakeFiles/FileXplore.dir/main.cpp.obj	189324a703440ffe
+1707	1859	7844775392273080	bin/FileXplore.exe	d14f8d6ec6489f26

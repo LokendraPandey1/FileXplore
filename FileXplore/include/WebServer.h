@@ -1,15 +1,27 @@
 #pragma once
 
+#ifdef _WIN32
+    #ifndef NOMINMAX
+    #define NOMINMAX
+    #endif
+    #ifndef _WIN32_WINNT
+    #define _WIN32_WINNT 0x0601
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+#endif
+
 #include <string>
-#include <thread>
 #include <memory>
+#include <thread>
+#include <chrono>
 #include <functional>
 
-// Forward declaration for Crow (will be included in implementation)
-namespace crow {
-    class SimpleApp;
-    class response;
-}
+#ifndef CROW_STATIC_DIRECTORY
+#define CROW_STATIC_DIRECTORY "./web/"
+#endif
+#define CROW_MAIN
+#include "../third_party/include/crow/crow_all.h"
 
 /**
  * WebServer - HTTP server for GUI communication

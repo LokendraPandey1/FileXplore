@@ -1,4 +1,3 @@
-using namespace std;
 #pragma once
 
 #include <string>
@@ -12,15 +11,15 @@ using namespace std;
  */
 class HistoryManager {
 private:
-    static deque<string> command_history;
-    static const size_t MAX_HISTORY_SIZE = 20;
+    static std::deque<std::string> command_history;
+    static const std::size_t MAX_HISTORY_SIZE = 20;
 
 public:
     // Add command to history
-    static void addCommand(const string& command);
+    static void addCommand(const std::string& command);
     
     // Get command history
-    static vector<string> getHistory();
+    static std::vector<std::string> getHistory();
     
     // Display command history
     static void displayHistory();
@@ -29,10 +28,10 @@ public:
     static void clearHistory();
     
     // Get history size
-    static size_t getHistorySize();
+    static std::size_t getHistorySize();
     
     // Get command at specific index (0 = most recent)
-    static string getCommand(size_t index);
+    static std::string getCommand(std::size_t index);
     
     // Persistence methods
     static bool saveHistory();

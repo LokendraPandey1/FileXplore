@@ -1,7 +1,14 @@
-using namespace std;
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <iostream>
+using std::string;
+using std::vector;
+using std::cout;
+using std::cerr;
+using std::endl;
 #include "../include/DirManager.h"
 #include "../include/PathUtils.h"
-#include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>

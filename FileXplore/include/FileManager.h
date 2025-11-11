@@ -1,4 +1,3 @@
-using namespace std;
 #pragma once
 
 #include <string>
@@ -11,17 +10,17 @@ using namespace std;
 class FileManager {
 public:
     // File operations
-    static string createFile(const string& virtual_path);
-    static string writeFile(const string& virtual_path, const string& content);
-    static string appendFile(const string& virtual_path, const string& content);
-    static string readFile(const string& virtual_path);
-    static string deleteFile(const string& virtual_path);
+    static std::string createFile(const std::string& virtual_path);
+    static std::string writeFile(const std::string& virtual_path, const std::string& content);
+    static std::string appendFile(const std::string& virtual_path, const std::string& content);
+    static std::string readFile(const std::string& virtual_path);
+    static std::string deleteFile(const std::string& virtual_path);
     
     // File information
-    static bool fileExists(const string& virtual_path);
-    static long long getFileSize(const string& virtual_path);
+    static bool fileExists(const std::string& virtual_path);
+    static long long getFileSize(const std::string& virtual_path);
     
 private:
     // Helper method for validation
-    static bool validateFileOperation(const string& real_path, const string& operation);
+    static bool validateFileOperation(const std::string& real_path, const std::string& operation);
 };

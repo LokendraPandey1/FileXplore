@@ -1,4 +1,3 @@
-using namespace std;
 #pragma once
 
 #include <string>
@@ -15,51 +14,51 @@ public:
     // Command execution result
     struct CommandResult {
         bool success;
-        string message;
+        std::string message;
         
-        CommandResult(bool s = true, const string& msg = "") : success(s), message(msg) {}
+        CommandResult(bool s = true, const std::string& msg = "") : success(s), message(msg) {}
     };
     
     // Initialize command parser
     static void initialize();
     
     // Parse and execute a command
-    static CommandResult executeCommand(const string& input);
+    static CommandResult executeCommand(const std::string& input);
     
     // Get list of available commands
-    static vector<string> getAvailableCommands();
+    static std::vector<std::string> getAvailableCommands();
     
     // Display help information
     static void displayHelp();
     
 private:
     // Command function type
-    using CommandFunction = function<CommandResult(const vector<string>&)>;
+    using CommandFunction = std::function<CommandResult(const std::vector<std::string>&)>;
     
     // Map of command names to functions
-    static map<string, CommandFunction> commands;
+    static std::map<std::string, CommandFunction> commands;
     
     // Parse input into command and arguments
-    static vector<string> parseInput(const string& input);
+    static std::vector<std::string> parseInput(const std::string& input);
     
     // Extract quoted strings from arguments
-    static string extractQuotedString(const vector<string>& args, size_t start_index);
+    static std::string extractQuotedString(const std::vector<std::string>& args, size_t start_index);
     
     // Command implementations
-    static CommandResult cmdMkdir(const vector<string>& args);
-    static CommandResult cmdRmdir(const vector<string>& args);
-    static CommandResult cmdLs(const vector<string>& args);
-    static CommandResult cmdTree(const vector<string>& args);
-    static CommandResult cmdCd(const vector<string>& args);
-    static CommandResult cmdPwd(const vector<string>& args);
-    static CommandResult cmdCreate(const vector<string>& args);
-    static CommandResult cmdWrite(const vector<string>& args);
-    static CommandResult cmdAppend(const vector<string>& args);
-    static CommandResult cmdRead(const vector<string>& args);
-    static CommandResult cmdDelete(const vector<string>& args);
-    static CommandResult cmdHelp(const vector<string>& args);
-    static CommandResult cmdClear(const vector<string>& args);
-    static CommandResult cmdHistory(const vector<string>& args);
-    static CommandResult cmdDf(const vector<string>& args);
-    static CommandResult cmdExit(const vector<string>& args);
+    static CommandResult cmdMkdir(const std::vector<std::string>& args);
+    static CommandResult cmdRmdir(const std::vector<std::string>& args);
+    static CommandResult cmdLs(const std::vector<std::string>& args);
+    static CommandResult cmdTree(const std::vector<std::string>& args);
+    static CommandResult cmdCd(const std::vector<std::string>& args);
+    static CommandResult cmdPwd(const std::vector<std::string>& args);
+    static CommandResult cmdCreate(const std::vector<std::string>& args);
+    static CommandResult cmdWrite(const std::vector<std::string>& args);
+    static CommandResult cmdAppend(const std::vector<std::string>& args);
+    static CommandResult cmdRead(const std::vector<std::string>& args);
+    static CommandResult cmdDelete(const std::vector<std::string>& args);
+    static CommandResult cmdHelp(const std::vector<std::string>& args);
+    static CommandResult cmdClear(const std::vector<std::string>& args);
+    static CommandResult cmdHistory(const std::vector<std::string>& args);
+    static CommandResult cmdDf(const std::vector<std::string>& args);
+    static CommandResult cmdExit(const std::vector<std::string>& args);
 };
