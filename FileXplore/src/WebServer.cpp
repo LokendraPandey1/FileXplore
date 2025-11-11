@@ -133,19 +133,26 @@ crow::response WebServer::handleCommand(const crow::request& req) {
 
 crow::response WebServer::handleFileSystem(const crow::request& req) {
     try {
-        std::string path = req.url_params.get("path") ? req.url_params.get("path") : ".";
+        std::string path = req.url_params.get("path") ? std::string(req.url_params.get("path")) : ".";
+        // Handle URL-encoded "/" which comes as "%2F"
+        if (path == "%2F" || path.empty()) {
+            path = "/";
+        }
+        
         FileSystemData fs_data = getFileSystemData(path);
 
         json response_json;
         response_json["success"] = true;
         response_json["message"] = "File system data retrieved";
-        response_json["data"] = json::parse(generateJSON(fs_data));
+        // generateJSON returns a JSON string, keep it as a string (frontend will parse it)
+        response_json["data"] = generateJSON(fs_data);
 
         crow::response res(response_json.dump());
         addCorsHeaders(res);
         return res;
 
     } catch (const std::exception& e) {
+        std::cerr << "Error in handleFileSystem: " << e.what() << std::endl;
         json error_json;
         error_json["success"] = false;
         error_json["message"] = "Error retrieving file system data: " + std::string(e.what());
@@ -415,9 +422,13 @@ WebServer::ApiResponse WebServer::executeCommandAPI(const std::string& command, 
 WebServer::FileSystemData WebServer::getFileSystemData(const std::string& path) {
     FileSystemData data;
 
-    // Get current and parent paths
-    std::string real_path = PathUtils::resolveVirtualPath(path);
-    data.currentPath = PathUtils::getVirtualPath(real_path);
+    // Normalize path: convert "/" or empty to "." for internal use, but keep "/" for virtual path representation
+    std::string virtual_path = (path == "/" || path.empty()) ? "/" : path;
+    std::string list_path = (path == "/" || path.empty()) ? "." : path;
+
+    // Get current and parent paths using the virtual path
+    std::string real_path = PathUtils::resolveVirtualPath(list_path);
+    data.currentPath = virtual_path;  // Return "/" for root, not "."
 
     fs::path parent_path = fs::path(real_path).parent_path();
     if (parent_path >= fs::path(PathUtils::getVFSRoot())) {
@@ -426,34 +437,56 @@ WebServer::FileSystemData WebServer::getFileSystemData(const std::string& path) 
         data.parentPath = "";
     }
 
-    // List directory contents
-    std::vector<std::string> entries = DirManager::listDirectory(path);
+    // List directory contents using the normalized path
+    std::vector<std::string> entries = DirManager::listDirectory(list_path);
     for (const auto& entry : entries) {
-        FileInfo file_info;
-        file_info.name = entry;
+        try {
+            FileInfo file_info;
+            file_info.name = entry;
 
-        std::string entry_path = PathUtils::resolveVirtualPath((path == ".") ? entry : path + "/" + entry);
+            // Build full virtual path for the entry
+            std::string entry_virtual_path;
+            if (virtual_path == "/") {
+                entry_virtual_path = "/" + entry;
+            } else {
+                entry_virtual_path = virtual_path + "/" + entry;
+            }
 
-        if (fs::is_directory(entry_path)) {
-            file_info.type = "directory";
-            file_info.size = 0;
-        } else {
-            file_info.type = "file";
-            file_info.size = FileManager::getFileSize(entry);
+            std::string entry_real_path = PathUtils::resolveVirtualPath(entry_virtual_path);
+
+            if (fs::is_directory(entry_real_path)) {
+                file_info.type = "directory";
+                file_info.size = 0;
+            } else {
+                file_info.type = "file";
+                // Use the full virtual path for getFileSize
+                try {
+                    file_info.size = FileManager::getFileSize(entry_virtual_path);
+                } catch (...) {
+                    file_info.size = 0;  // Default to 0 if size cannot be determined
+                }
+            }
+
+            // Get modification time
+            try {
+                auto ftime = fs::last_write_time(entry_real_path);
+                auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+                    ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
+                std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+                std::stringstream ss;
+                ss << std::put_time(std::localtime(&cftime), "%Y-%m-%dT%H:%M:%SZ");
+                file_info.modified = ss.str();
+            } catch (...) {
+                file_info.modified = "";  // Default to empty if time cannot be determined
+            }
+
+            file_info.permissions = "rw-r--r--";  // Simplified permissions
+
+            data.files.push_back(file_info);
+        } catch (const std::exception& e) {
+            // Skip this entry if there's an error, but continue with others
+            std::cerr << "Warning: Error processing file entry '" << entry << "': " << e.what() << std::endl;
         }
-
-        // Get modification time
-        auto ftime = fs::last_write_time(entry_path);
-        auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-            ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
-        std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
-        std::stringstream ss;
-        ss << std::put_time(std::localtime(&cftime), "%Y-%m-%dT%H:%M:%SZ");
-        file_info.modified = ss.str();
-
-        file_info.permissions = "rw-r--r--";  // Simplified permissions
-
-        data.files.push_back(file_info);
     }
 
     return data;
