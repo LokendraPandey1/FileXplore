@@ -60,5 +60,7 @@ private:
     static CommandResult cmdClear(const std::vector<std::string>& args);
     static CommandResult cmdHistory(const std::vector<std::string>& args);
     static CommandResult cmdDf(const std::vector<std::string>& args);
+    static CommandResult cmdZip(const std::vector<std::string>& args);
+    static CommandResult cmdUnzip(const std::vector<std::string>& args);
     static CommandResult cmdExit(const std::vector<std::string>& args);
 };

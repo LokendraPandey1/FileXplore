@@ -47,6 +47,8 @@ class FileXploreApp {
         document.getElementById('create-file-btn').addEventListener('click', () => this.showCreateFileDialog());
         document.getElementById('create-folder-btn').addEventListener('click', () => this.showCreateFolderDialog());
         document.getElementById('upload-btn').addEventListener('click', () => this.showUploadDialog());
+        document.getElementById('compress-btn').addEventListener('click', () => this.showCompressDialog());
+        document.getElementById('decompress-btn').addEventListener('click', () => this.showDecompressDialog());
 
         // Toolbar
         document.getElementById('refresh-btn').addEventListener('click', () => this.refreshFileList());
@@ -686,6 +688,12 @@ class FileXploreApp {
             case 'download':
                 this.downloadFile(path);
                 break;
+            case 'compress':
+                this.compressFiles([path]);
+                break;
+            case 'extract':
+                this.decompressFile(path);
+                break;
             case 'delete':
                 this.deleteFile(path);
                 break;
@@ -838,6 +846,103 @@ class FileXploreApp {
             // Try to read as text first, fallback to binary if needed
             reader.readAsText(file);
         });
+    }
+
+    showCompressDialog() {
+        if (this.selectedFiles.size === 0) {
+            this.showStatus('Please select files or folders to compress', 'error');
+            return;
+        }
+
+        const zipName = prompt('Enter zip file name:', 'archive.zip');
+        if (!zipName) return;
+
+        if (!zipName.endsWith('.zip')) {
+            this.showStatus('Zip file name must end with .zip', 'error');
+            return;
+        }
+
+        const paths = Array.from(this.selectedFiles);
+        this.compressFiles(paths, zipName);
+    }
+
+    showDecompressDialog() {
+        if (this.selectedFiles.size === 0) {
+            this.showStatus('Please select a zip file to extract', 'error');
+            return;
+        }
+
+        const selectedPath = Array.from(this.selectedFiles)[0];
+        const fileName = selectedPath.split('/').pop();
+        
+        if (!fileName.endsWith('.zip')) {
+            this.showStatus('Please select a zip file', 'error');
+            return;
+        }
+
+        const destDir = prompt('Enter destination directory (leave empty for current directory):', this.currentPath);
+        if (destDir === null) return;
+
+        this.decompressFile(selectedPath, destDir || this.currentPath);
+    }
+
+    async compressFiles(paths, zipName = null) {
+        if (paths.length === 0) {
+            this.showStatus('No files selected for compression', 'error');
+            return;
+        }
+
+        let zipPath;
+        if (zipName) {
+            // If zipName is provided, use it as the full path or relative to current path
+            if (zipName.startsWith('/')) {
+                zipPath = zipName;
+            } else {
+                zipPath = this.currentPath === '/' ? '/' + zipName : `${this.currentPath}/${zipName}`;
+            }
+        } else {
+            zipPath = this.currentPath === '/' ? '/archive.zip' : `${this.currentPath}/archive.zip`;
+        }
+
+        try {
+            this.showStatus('Compressing files...', 'info');
+            
+            const response = await this.apiRequest('/api/compress', 'POST', {
+                zipPath: zipPath,
+                paths: paths
+            });
+
+            if (response.success) {
+                this.showStatus('Files compressed successfully', 'success');
+                await this.loadFileSystem();
+            } else {
+                throw new Error(response.message);
+            }
+        } catch (error) {
+            this.showStatus('Failed to compress files: ' + error.message, 'error');
+            console.error('Error compressing files:', error);
+        }
+    }
+
+    async decompressFile(zipPath, destDir = null) {
+        try {
+            this.showStatus('Extracting zip file...', 'info');
+            
+            const response = await this.apiRequest('/api/decompress', 'POST', {
+                zipPath: zipPath,
+                destDir: destDir || this.currentPath
+            });
+
+            if (response.success) {
+                this.showStatus('Zip file extracted successfully', 'success');
+                await this.loadFileSystem();
+            } else {
+                throw new Error(response.message);
+            }
+        } catch (error) {
+            this.showStatus('Failed to extract zip file: ' + error.message, 'error');
+            console.error('Error extracting zip file:', error);
+        }
     }
 
     searchFiles() {

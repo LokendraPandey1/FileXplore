@@ -5,6 +5,7 @@ using namespace std;
 #include "../include/DirManager.h"
 #include "../include/HistoryManager.h"
 #include "../include/SystemInfo.h"
+#include "../include/CompressionManager.h"
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -29,6 +30,8 @@ void CommandParser::initialize() {
     commands["clear"] = cmdClear;
     commands["history"] = cmdHistory;
     commands["df"] = cmdDf;
+    commands["zip"] = cmdZip;
+    commands["unzip"] = cmdUnzip;
     commands["exit"] = cmdExit;
 }
 
@@ -88,6 +91,10 @@ void CommandParser::displayHelp() {
     cout << "  append <path> \"text\"- Append content to file" << endl;
     cout << "  read <path>         - Display file content" << endl;
     cout << "  delete <path>       - Delete file" << endl;
+    
+    cout << endl << "Compression:" << endl;
+    cout << "  zip <output.zip> <path1> [path2] ... - Compress files/directories to zip" << endl;
+    cout << "  unzip <input.zip> [dest_dir]         - Extract zip file to directory" << endl;
     
     cout << endl << "System & Utility:" << endl;
     cout << "  df                  - Show disk usage statistics" << endl;
@@ -313,6 +320,43 @@ CommandParser::CommandResult CommandParser::cmdHistory(const vector<string>& arg
 CommandParser::CommandResult CommandParser::cmdDf(const vector<string>& args) {
     SystemInfo::displayDiskUsage();
     return CommandResult(true, "");
+}
+
+CommandParser::CommandResult CommandParser::cmdZip(const vector<string>& args) {
+    if (args.size() < 3) {
+        return CommandResult(false, "Usage: zip <output.zip> <path1> [path2] ...");
+    }
+    
+    string zipPath = args[1];
+    vector<string> pathsToZip;
+    for (size_t i = 2; i < args.size(); ++i) {
+        pathsToZip.push_back(args[i]);
+    }
+    
+    if (CompressionManager::compressToZip(zipPath, pathsToZip)) {
+        return CommandResult(true, "Files compressed to: " + zipPath);
+    } else {
+        return CommandResult(false, "Failed to create zip file: " + zipPath);
+    }
+}
+
+CommandParser::CommandResult CommandParser::cmdUnzip(const vector<string>& args) {
+    if (args.size() < 2) {
+        return CommandResult(false, "Usage: unzip <input.zip> [dest_dir]");
+    }
+    
+    string zipPath = args[1];
+    string destDir = (args.size() > 2) ? args[2] : ".";
+    
+    if (!CompressionManager::isZipFile(zipPath)) {
+        return CommandResult(false, "Error: Not a valid zip file: " + zipPath);
+    }
+    
+    if (CompressionManager::decompressFromZip(zipPath, destDir)) {
+        return CommandResult(true, "Zip file extracted to: " + destDir);
+    } else {
+        return CommandResult(false, "Failed to extract zip file: " + zipPath);
+    }
 }
 
 CommandParser::CommandResult CommandParser::cmdExit(const vector<string>& args) {

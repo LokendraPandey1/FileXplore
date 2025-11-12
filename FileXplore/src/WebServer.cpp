@@ -5,6 +5,7 @@
 #include "../include/DirManager.h"
 #include "../include/HistoryManager.h"
 #include "../include/SystemInfo.h"
+#include "../include/CompressionManager.h"
 #include <sstream>
 #include <fstream>
 #include <filesystem>
@@ -112,6 +113,14 @@ void WebServer::setupRoutes() {
 
     CROW_ROUTE((*app_), "/api/system").methods("GET"_method)([this](const crow::request& req) {
         return handleSystemInfo(req);
+    });
+
+    CROW_ROUTE((*app_), "/api/compress").methods("POST"_method)([this](const crow::request& req) {
+        return handleCompress(req);
+    });
+
+    CROW_ROUTE((*app_), "/api/decompress").methods("POST"_method)([this](const crow::request& req) {
+        return handleDecompress(req);
     });
 
     // Static file serving
@@ -353,6 +362,104 @@ crow::response WebServer::handleSystemInfo(const crow::request& req) {
         json error_json;
         error_json["success"] = false;
         error_json["message"] = "Error retrieving system info: " + std::string(e.what());
+        error_json["data"] = "";
+
+        crow::response res(500, error_json.dump());
+        addCorsHeaders(res);
+        return res;
+    }
+}
+
+crow::response WebServer::handleCompress(const crow::request& req) {
+    try {
+        json request_data = json::parse(req.body);
+        std::string zipPath = request_data["zipPath"];
+        std::vector<std::string> paths = request_data["paths"];
+
+        if (paths.empty()) {
+            json error_json;
+            error_json["success"] = false;
+            error_json["message"] = "No paths specified for compression";
+            error_json["data"] = "";
+
+            crow::response res(400, error_json.dump());
+            addCorsHeaders(res);
+            return res;
+        }
+
+        if (CompressionManager::compressToZip(zipPath, paths)) {
+            json response_json;
+            response_json["success"] = true;
+            response_json["message"] = "Files compressed successfully";
+            response_json["data"] = "";
+
+            crow::response res(response_json.dump());
+            addCorsHeaders(res);
+            return res;
+        } else {
+            json error_json;
+            error_json["success"] = false;
+            error_json["message"] = "Failed to compress files";
+            error_json["data"] = "";
+
+            crow::response res(500, error_json.dump());
+            addCorsHeaders(res);
+            return res;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error in handleCompress: " << e.what() << std::endl;
+        json error_json;
+        error_json["success"] = false;
+        error_json["message"] = "Error compressing files: " + std::string(e.what());
+        error_json["data"] = "";
+
+        crow::response res(500, error_json.dump());
+        addCorsHeaders(res);
+        return res;
+    }
+}
+
+crow::response WebServer::handleDecompress(const crow::request& req) {
+    try {
+        json request_data = json::parse(req.body);
+        std::string zipPath = request_data["zipPath"];
+        std::string destDir = request_data.value("destDir", ".");
+
+        if (!CompressionManager::isZipFile(zipPath)) {
+            json error_json;
+            error_json["success"] = false;
+            error_json["message"] = "Not a valid zip file: " + zipPath;
+            error_json["data"] = "";
+
+            crow::response res(400, error_json.dump());
+            addCorsHeaders(res);
+            return res;
+        }
+
+        if (CompressionManager::decompressFromZip(zipPath, destDir)) {
+            json response_json;
+            response_json["success"] = true;
+            response_json["message"] = "Zip file extracted successfully";
+            response_json["data"] = "";
+
+            crow::response res(response_json.dump());
+            addCorsHeaders(res);
+            return res;
+        } else {
+            json error_json;
+            error_json["success"] = false;
+            error_json["message"] = "Failed to extract zip file";
+            error_json["data"] = "";
+
+            crow::response res(500, error_json.dump());
+            addCorsHeaders(res);
+            return res;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error in handleDecompress: " << e.what() << std::endl;
+        json error_json;
+        error_json["success"] = false;
+        error_json["message"] = "Error extracting zip file: " + std::string(e.what());
         error_json["data"] = "";
 
         crow::response res(500, error_json.dump());

@@ -102,6 +102,8 @@ private:
     crow::response handleFileUpload(const crow::request& req, const std::string& path);
     crow::response handleHistory(const crow::request& req);
     crow::response handleSystemInfo(const crow::request& req);
+    crow::response handleCompress(const crow::request& req);
+    crow::response handleDecompress(const crow::request& req);
 
     // Static file serving
     crow::response handleStaticFile(const std::string& filename);

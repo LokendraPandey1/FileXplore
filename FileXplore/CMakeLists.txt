@@ -95,6 +95,7 @@ set(SOURCES
 	src/PersistenceManager.cpp
 	src/HistoryManager.cpp
 	src/SystemInfo.cpp
+	src/CompressionManager.cpp
 	main.cpp
 )
 
@@ -115,6 +116,7 @@ set(HEADERS
 	include/CommandParser.h
 	include/HistoryManager.h
 	include/SystemInfo.h
+	include/CompressionManager.h
 	include/WebServer.h
 )
 
@@ -139,6 +141,22 @@ endif()
 if(WIN32)
 	# Winsock for networking
 	target_link_libraries(FileXplore ws2_32 mswsock)
+endif()
+
+# Link zlib for compression support
+find_package(ZLIB QUIET)
+if(ZLIB_FOUND)
+	target_link_libraries(FileXplore ${ZLIB_LIBRARIES})
+	target_include_directories(FileXplore PRIVATE ${ZLIB_INCLUDE_DIRS})
+	message(STATUS "Found zlib: ${ZLIB_LIBRARIES}")
+else()
+	# Try to find zlib in common locations (MSYS2)
+	if(EXISTS "C:/msys64/mingw64/lib/libz.a" OR EXISTS "C:/msys64/mingw64/lib/libz.dll.a")
+		target_link_libraries(FileXplore z)
+		message(STATUS "Linking zlib from MSYS2")
+	else()
+		message(WARNING "zlib not found. Compression features may not work. Install zlib (MSYS2: pacman -S mingw-w64-x86_64-zlib)")
+	endif()
 endif()
 
 # Set output directory
