@@ -193,11 +193,9 @@ crow::response WebServer::handleFileContent(const crow::request& req, const std:
     try {
         // Decode URL-encoded path (Crow doesn't automatically decode route parameters)
         std::string decoded_path = urlDecode(path);
-        std::cerr << "DEBUG handleFileContent: Received path: '" << path << "', decoded: '" << decoded_path << "'" << std::endl;
         
         // Check if file exists first
         bool exists = FileManager::fileExists(decoded_path);
-        std::cerr << "DEBUG handleFileContent: fileExists returned: " << (exists ? "true" : "false") << std::endl;
         
         if (!exists) {
             json error_json;
@@ -212,14 +210,9 @@ crow::response WebServer::handleFileContent(const crow::request& req, const std:
 
         // Read file content
         std::string content = FileManager::readFile(decoded_path);
-        std::cerr << "DEBUG handleFileContent: readFile returned content length: " << content.length() << std::endl;
-        if (content.length() < 100) {
-            std::cerr << "DEBUG handleFileContent: content preview: '" << content << "'" << std::endl;
-        }
 
         // Check if readFile returned an error message (starts with "Error:")
         if (content.find("Error:") == 0) {
-            std::cerr << "DEBUG handleFileContent: readFile returned error: " << content << std::endl;
             json error_json;
             error_json["success"] = false;
             error_json["message"] = content;  // Use the error message from FileManager

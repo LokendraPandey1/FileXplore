@@ -1,8 +1,0 @@
-C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-debug/CMakeFiles/FileXplore.dir
-C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-debug/CMakeFiles/run.dir
-C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-debug/CMakeFiles/edit_cache.dir
-C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-debug/CMakeFiles/rebuild_cache.dir
-C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-debug/CMakeFiles/list_install_components.dir
-C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-debug/CMakeFiles/install.dir
-C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-debug/CMakeFiles/install/local.dir
-C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore/build-debug/CMakeFiles/install/strip.dir
