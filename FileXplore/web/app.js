@@ -14,6 +14,9 @@ class FileXploreApp {
         this.commandHistoryIndex = -1;
         this.clipboard = null;
         this.clipboardOperation = null;
+        this.currentPreviewPath = null;  // Track which file is being previewed
+        this.navigationHistory = ['/'];  // Track navigation history
+        this.navigationHistoryIndex = 0;  // Current position in history
 
         this.init();
     }
@@ -33,6 +36,12 @@ class FileXploreApp {
 
         // Theme toggle
         document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
+
+        // Navigation controls
+        document.getElementById('nav-back-btn').addEventListener('click', () => this.navigateBack());
+        document.getElementById('nav-forward-btn').addEventListener('click', () => this.navigateForward());
+        document.getElementById('nav-up-btn').addEventListener('click', () => this.navigateUp());
+        document.getElementById('nav-home-btn').addEventListener('click', () => this.navigateTo('/'));
 
         // Quick actions
         document.getElementById('create-file-btn').addEventListener('click', () => this.showCreateFileDialog());
@@ -65,6 +74,27 @@ class FileXploreApp {
 
         // Modal close buttons
         document.getElementById('preview-close').addEventListener('click', () => this.closeModal('file-preview-modal'));
+        document.getElementById('preview-save-btn').addEventListener('click', () => this.saveFilePreview());
+        
+        // Close modal when clicking outside
+        document.getElementById('file-preview-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'file-preview-modal') {
+                this.closeModal('file-preview-modal');
+            }
+        });
+        
+        // Close modal with ESC key, Save with Ctrl+S
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('file-preview-modal');
+            if (modal.style.display === 'flex') {
+                if (e.key === 'Escape') {
+                    this.closeModal('file-preview-modal');
+                } else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();  // Prevent browser save dialog
+                    this.saveFilePreview();
+                }
+            }
+        });
 
         // File explorer click handling
         document.getElementById('file-explorer').addEventListener('click', (e) => {
@@ -76,21 +106,30 @@ class FileXploreApp {
         });
 
         // Drag and drop
-        document.getElementById('file-explorer').addEventListener('dragover', (e) => {
+        const fileExplorer = document.getElementById('file-explorer');
+        fileExplorer.addEventListener('dragover', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             e.currentTarget.classList.add('drag-over');
         });
 
-        document.getElementById('file-explorer').addEventListener('dragleave', (e) => {
-            if (e.target === e.currentTarget) {
+        fileExplorer.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.target === e.currentTarget || !e.currentTarget.contains(e.relatedTarget)) {
                 e.currentTarget.classList.remove('drag-over');
             }
         });
 
-        document.getElementById('file-explorer').addEventListener('drop', (e) => {
+        fileExplorer.addEventListener('drop', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             e.currentTarget.classList.remove('drag-over');
-            this.handleFileDrop(e);
+            
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length > 0) {
+                files.forEach(file => this.uploadFile(file));
+            }
         });
 
         // Keyboard shortcuts
@@ -118,6 +157,7 @@ class FileXploreApp {
                 this.loadFileSystem(),
                 this.loadSystemInfo()
             ]);
+            this.updateNavigationButtons();  // Initialize navigation buttons
         } catch (error) {
             this.showStatus('Failed to load initial data', 'error');
             console.error('Error loading initial data:', error);
@@ -135,6 +175,7 @@ class FileXploreApp {
                 this.updateBreadcrumb(data.currentPath, data.parentPath);
                 this.renderFileList(data.files);
                 this.updateCommandPrompt();
+                this.updateNavigationButtons();
             } else {
                 throw new Error(response.message);
             }
@@ -399,12 +440,74 @@ class FileXploreApp {
         if (path === this.currentPath) return;
 
         try {
+            // Add to navigation history if it's a new path (not back/forward navigation)
+            if (path !== this.navigationHistory[this.navigationHistoryIndex]) {
+                // Remove any forward history if we're navigating to a new path
+                this.navigationHistory = this.navigationHistory.slice(0, this.navigationHistoryIndex + 1);
+                // Add new path to history
+                this.navigationHistory.push(path);
+                this.navigationHistoryIndex = this.navigationHistory.length - 1;
+            }
+
             await this.loadFileSystem(path);
             this.clearSelection();
-            this.showStatus(`Navigated to ${path}`, 'success');
+            this.updateNavigationButtons();
+            // Don't show status for every navigation to avoid spam
         } catch (error) {
             this.showStatus('Failed to navigate', 'error');
         }
+    }
+
+    navigateBack() {
+        if (this.navigationHistoryIndex > 0) {
+            this.navigationHistoryIndex--;
+            const path = this.navigationHistory[this.navigationHistoryIndex];
+            this.loadFileSystem(path).then(() => {
+                this.clearSelection();
+                this.updateNavigationButtons();
+            }).catch(() => {
+                this.showStatus('Failed to navigate back', 'error');
+            });
+        }
+    }
+
+    navigateForward() {
+        if (this.navigationHistoryIndex < this.navigationHistory.length - 1) {
+            this.navigationHistoryIndex++;
+            const path = this.navigationHistory[this.navigationHistoryIndex];
+            this.loadFileSystem(path).then(() => {
+                this.clearSelection();
+                this.updateNavigationButtons();
+            }).catch(() => {
+                this.showStatus('Failed to navigate forward', 'error');
+            });
+        }
+    }
+
+    navigateUp() {
+        if (this.currentPath === '/') return;
+        
+        const parts = this.currentPath.split('/').filter(part => part);
+        if (parts.length > 0) {
+            parts.pop();
+            const parentPath = parts.length > 0 ? '/' + parts.join('/') : '/';
+            this.navigateTo(parentPath);
+        }
+    }
+
+    updateNavigationButtons() {
+        const backBtn = document.getElementById('nav-back-btn');
+        const forwardBtn = document.getElementById('nav-forward-btn');
+        const upBtn = document.getElementById('nav-up-btn');
+
+        // Enable/disable back button
+        backBtn.disabled = this.navigationHistoryIndex <= 0;
+
+        // Enable/disable forward button
+        forwardBtn.disabled = this.navigationHistoryIndex >= this.navigationHistory.length - 1;
+
+        // Enable/disable up button (disabled at root)
+        upBtn.disabled = this.currentPath === '/';
     }
 
     async openFile(path) {
@@ -425,16 +528,62 @@ class FileXploreApp {
     showFilePreview(path, content) {
         const modal = document.getElementById('file-preview-modal');
         const title = document.getElementById('preview-title');
-        const contentDiv = document.getElementById('file-preview-content');
+        const contentTextarea = document.getElementById('file-preview-content');
+        const saveBtn = document.getElementById('preview-save-btn');
 
-        title.textContent = `Preview: ${path.split('/').pop()}`;
-        contentDiv.textContent = content;
+        this.currentPreviewPath = path;  // Store the current file path
+        title.textContent = `Edit: ${path.split('/').pop()}`;
+        contentTextarea.value = content;
+
+        // Make sure save button is visible
+        if (saveBtn) {
+            saveBtn.style.display = 'flex';
+        }
 
         modal.style.display = 'flex';
+        // Focus the textarea for immediate editing
+        setTimeout(() => contentTextarea.focus(), 100);
+    }
+
+    async saveFilePreview() {
+        if (!this.currentPreviewPath) {
+            return;
+        }
+
+        const contentTextarea = document.getElementById('file-preview-content');
+        const content = contentTextarea.value;
+
+        try {
+            // Send file content as plain text, not JSON
+            const url = `/api/file/${encodeURIComponent(this.currentPreviewPath)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain',
+                },
+                body: content
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || `HTTP ${response.status}`);
+            }
+
+            if (result.success) {
+                this.showStatus('File saved successfully', 'success');
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            this.showStatus('Failed to save file', 'error');
+            console.error('Error saving file:', error);
+        }
     }
 
     closeModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
+        this.currentPreviewPath = null;  // Clear the preview path
     }
 
     async executeCommand() {
@@ -631,29 +780,52 @@ class FileXploreApp {
         }
     }
 
-    handleFileDrop(event) {
-        const files = Array.from(event.dataTransfer.files);
-
-        files.forEach(file => {
-            this.uploadFile(file);
-        });
+    showUploadDialog() {
+        const fileInput = document.getElementById('file-upload-input');
+        fileInput.onchange = (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                files.forEach(file => this.uploadFile(file));
+            }
+            // Reset input so same file can be selected again
+            fileInput.value = '';
+        };
+        fileInput.click();
     }
 
     async uploadFile(file) {
         const path = this.currentPath === '/' ? `/${file.name}` : `${this.currentPath}/${file.name}`;
 
         try {
+            this.showStatus(`Uploading ${file.name}...`, 'info');
+            
+            // Read file content (handle both text and binary files)
             const content = await this.readFileAsText(file);
-            const response = await this.apiRequest(`/api/file/${encodeURIComponent(path)}`, 'POST', content);
+            
+            // Send file content as plain text, not JSON
+            const url = `/api/file/${encodeURIComponent(path)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain',
+                },
+                body: content
+            });
 
-            if (response.success) {
-                this.showStatus(`Uploaded ${file.name}`, 'success');
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || `HTTP ${response.status}`);
+            }
+
+            if (result.success) {
+                this.showStatus(`Uploaded ${file.name} successfully`, 'success');
                 await this.loadFileSystem();
             } else {
-                throw new Error(response.message);
+                throw new Error(result.message);
             }
         } catch (error) {
-            this.showStatus(`Failed to upload ${file.name}`, 'error');
+            this.showStatus(`Failed to upload ${file.name}: ${error.message}`, 'error');
             console.error('Error uploading file:', error);
         }
     }
@@ -663,6 +835,7 @@ class FileXploreApp {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
             reader.onerror = reject;
+            // Try to read as text first, fallback to binary if needed
             reader.readAsText(file);
         });
     }

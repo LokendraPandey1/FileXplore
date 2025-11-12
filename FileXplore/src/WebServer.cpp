@@ -13,6 +13,31 @@
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
+// URL decode function
+std::string urlDecode(const std::string& str) {
+    std::string result;
+    result.reserve(str.length());
+    
+    for (size_t i = 0; i < str.length(); ++i) {
+        if (str[i] == '%' && i + 2 < str.length()) {
+            int value = 0;
+            std::istringstream is(str.substr(i + 1, 2));
+            if (is >> std::hex >> value) {
+                result += static_cast<char>(value);
+                i += 2;
+            } else {
+                result += str[i];
+            }
+        } else if (str[i] == '+') {
+            result += ' ';
+        } else {
+            result += str[i];
+        }
+    }
+    
+    return result;
+}
+
 WebServer::WebServer(int port) : port_(port), running_(false) {
     app_ = std::make_unique<crow::SimpleApp>();
 }
@@ -166,24 +191,58 @@ crow::response WebServer::handleFileSystem(const crow::request& req) {
 
 crow::response WebServer::handleFileContent(const crow::request& req, const std::string& path) {
     try {
-        std::string content = FileManager::readFile(path);
-
-        if (!content.empty() || FileManager::fileExists(path)) {
-            crow::response res(200, content);
-            res.add_header("Content-Type", getMimeType(path));
-            addCorsHeaders(res);
-            return res;
-        } else {
+        // Decode URL-encoded path (Crow doesn't automatically decode route parameters)
+        std::string decoded_path = urlDecode(path);
+        std::cerr << "DEBUG handleFileContent: Received path: '" << path << "', decoded: '" << decoded_path << "'" << std::endl;
+        
+        // Check if file exists first
+        bool exists = FileManager::fileExists(decoded_path);
+        std::cerr << "DEBUG handleFileContent: fileExists returned: " << (exists ? "true" : "false") << std::endl;
+        
+        if (!exists) {
             json error_json;
             error_json["success"] = false;
-            error_json["message"] = "File not found: " + path;
+            error_json["message"] = "File not found: " + decoded_path;
             error_json["data"] = "";
 
             crow::response res(404, error_json.dump());
             addCorsHeaders(res);
             return res;
         }
+
+        // Read file content
+        std::string content = FileManager::readFile(decoded_path);
+        std::cerr << "DEBUG handleFileContent: readFile returned content length: " << content.length() << std::endl;
+        if (content.length() < 100) {
+            std::cerr << "DEBUG handleFileContent: content preview: '" << content << "'" << std::endl;
+        }
+
+        // Check if readFile returned an error message (starts with "Error:")
+        if (content.find("Error:") == 0) {
+            std::cerr << "DEBUG handleFileContent: readFile returned error: " << content << std::endl;
+            json error_json;
+            error_json["success"] = false;
+            error_json["message"] = content;  // Use the error message from FileManager
+            error_json["data"] = "";
+
+            crow::response res(500, error_json.dump());
+            addCorsHeaders(res);
+            return res;
+        }
+
+        // Return JSON response with file content
+        json response_json;
+        response_json["success"] = true;
+        response_json["message"] = "File content retrieved";
+        response_json["data"] = content;
+
+        crow::response res(response_json.dump());
+        res.add_header("Content-Type", "application/json");
+        addCorsHeaders(res);
+        return res;
+
     } catch (const std::exception& e) {
+        std::cerr << "Error in handleFileContent: " << e.what() << std::endl;
         json error_json;
         error_json["success"] = false;
         error_json["message"] = "Error reading file: " + std::string(e.what());
@@ -197,8 +256,10 @@ crow::response WebServer::handleFileContent(const crow::request& req, const std:
 
 crow::response WebServer::handleFileUpload(const crow::request& req, const std::string& path) {
     try {
+        // Decode URL-encoded path
+        std::string decoded_path = urlDecode(path);
         std::string content = req.body;
-        std::string result = FileManager::writeFile(path, content);
+        std::string result = FileManager::writeFile(decoded_path, content);
 
         if (result.find("Error:") == 0) {
             json error_json;
@@ -220,6 +281,7 @@ crow::response WebServer::handleFileUpload(const crow::request& req, const std::
             return res;
         }
     } catch (const std::exception& e) {
+        std::cerr << "Error in handleFileUpload: " << e.what() << std::endl;
         json error_json;
         error_json["success"] = false;
         error_json["message"] = "Error uploading file: " + std::string(e.what());

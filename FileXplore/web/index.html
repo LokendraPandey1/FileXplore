@@ -22,6 +22,28 @@
             </div>
 
             <div class="header-controls">
+                <div class="navigation-controls">
+                    <button class="nav-btn" id="nav-back-btn" title="Go Back" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15 18l-6-6 6-6v12z"/>
+                        </svg>
+                    </button>
+                    <button class="nav-btn" id="nav-forward-btn" title="Go Forward" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 18l6-6-6-6v12z"/>
+                        </svg>
+                    </button>
+                    <button class="nav-btn" id="nav-up-btn" title="Go to Parent Directory" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 8l-6 6h12l-6-6z"/>
+                        </svg>
+                    </button>
+                    <button class="nav-btn" id="nav-home-btn" title="Go to Root Directory">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                        </svg>
+                    </button>
+                </div>
                 <div class="breadcrumb" id="breadcrumb">
                     <span class="breadcrumb-item">/</span>
                 </div>
@@ -265,22 +287,33 @@
 
     <!-- File Preview Modal -->
     <div class="modal" id="file-preview-modal" style="display: none;">
-        <div class="modal-content">
+        <div class="modal-content" id="file-preview-modal-content">
             <div class="modal-header">
                 <h3 id="preview-title">File Preview</h3>
-                <button class="modal-close" id="preview-close" title="Close">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18 6L6 18M6 6l12 12"/>
-                    </svg>
-                </button>
+                <div class="modal-header-actions">
+                    <button class="modal-btn" id="preview-save-btn" title="Save Changes">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        Save
+                    </button>
+                    <button class="modal-close" id="preview-close" title="Close">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="modal-body">
-                <div class="file-preview-content" id="file-preview-content">
-                    <!-- File content will be displayed here -->
-                </div>
+                <textarea class="file-preview-content" id="file-preview-content" spellcheck="false"></textarea>
             </div>
         </div>
     </div>
+
+    <!-- Hidden file input for upload -->
+    <input type="file" id="file-upload-input" multiple style="display: none;">
 
     <!-- Error Toast Container -->
     <div class="toast-container" id="toast-container">

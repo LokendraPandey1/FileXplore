@@ -144,6 +144,45 @@ body {
     flex: 1;
 }
 
+.navigation-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-right: 1px solid var(--border-color);
+    padding-right: 0.75rem;
+    margin-right: 0.5rem;
+}
+
+.nav-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+}
+
+.nav-btn:hover:not(:disabled) {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+}
+
+.nav-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 .breadcrumb {
     display: flex;
     align-items: center;
@@ -391,6 +430,13 @@ body {
     flex: 1;
     overflow: auto;
     position: relative;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.file-explorer.drag-over {
+    background-color: var(--bg-tertiary);
+    border: 2px dashed var(--accent-primary);
+    border-radius: var(--radius-md);
 }
 
 .loading-indicator {
@@ -729,6 +775,52 @@ body {
     border-radius: var(--radius-sm);
     white-space: pre-wrap;
     word-break: break-all;
+    width: 100%;
+    min-height: 400px;
+    max-height: 70vh;
+    border: 1px solid var(--border-color);
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.file-preview-content:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: -1px;
+}
+
+.modal-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.modal-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.modal-btn:hover {
+    background-color: var(--accent-hover);
+}
+
+.modal-btn:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
+
+.modal-btn:active {
+    transform: scale(0.98);
 }
 
 /* Toast Notifications */
