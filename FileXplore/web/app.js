@@ -1,8 +1,3 @@
-/**
- * FileXplore GUI Application
- * Vanilla JavaScript implementation with API communication
- */
-
 class FileXploreApp {
     constructor() {
         this.currentPath = '/';

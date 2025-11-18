@@ -574,4 +574,3 @@ vector<string> CompressionManager::listZipContents(const string& zipPath) {
     zipFile.close();
     return contents;
 }
-
