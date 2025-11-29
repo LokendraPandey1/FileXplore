@@ -67,7 +67,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "c:/Users/loken/OneDrive/Documents/GitHub/FileXplore/build"
+			"value" : "c:/Users/loken/OneDrive/Desktop/Lokendra/FileXplore/build"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -467,7 +467,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/build/CMakeFiles/pkgRedirects"
+			"value" : "C:/Users/loken/OneDrive/Desktop/Lokendra/FileXplore/build/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -1283,7 +1283,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/build"
+			"value" : "C:/Users/loken/OneDrive/Desktop/Lokendra/FileXplore/build"
 		},
 		{
 			"name" : "FileXplore_IS_TOP_LEVEL",

@@ -6,7 +6,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/build/CMakeFiles/4.2.0-rc2/CMakeSystem.cmake"
+			"path" : "C:/Users/loken/OneDrive/Desktop/Lokendra/FileXplore/build/CMakeFiles/4.2.0-rc2/CMakeSystem.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -20,7 +20,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/build/CMakeFiles/4.2.0-rc2/CMakeCXXCompiler.cmake"
+			"path" : "C:/Users/loken/OneDrive/Desktop/Lokendra/FileXplore/build/CMakeFiles/4.2.0-rc2/CMakeCXXCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -84,7 +84,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/build/CMakeFiles/4.2.0-rc2/CMakeRCCompiler.cmake"
+			"path" : "C:/Users/loken/OneDrive/Desktop/Lokendra/FileXplore/build/CMakeFiles/4.2.0-rc2/CMakeRCCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -170,7 +170,7 @@
 	"kind" : "cmakeFiles",
 	"paths" : 
 	{
-		"build" : "C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/build",
+		"build" : "C:/Users/loken/OneDrive/Desktop/Lokendra/FileXplore/build",
 		"source" : "C:/Users/loken/OneDrive/Documents/GitHub/FileXplore/FileXplore"
 	},
 	"version" : 
